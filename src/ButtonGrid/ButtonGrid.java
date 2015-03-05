@@ -1,11 +1,13 @@
 package ButtonGrid;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame; //imports JFrame library
 import javax.swing.JButton; //imports JButton library
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout; //imports GridLayout library
@@ -24,16 +26,18 @@ public class ButtonGrid implements ActionListener
     int rows, columns;
     Grid grid;
     int count;
+    ImageIcon logoIcon;	//MineSweeper Logo
         
     public ButtonGrid()
     { 
     	//constructor
         JFrame frame = new JFrame("MineSweeper");
+        logoIcon = createImageIcon("MinesweeperCG.png", "MineSweeper Logo");
         
         //get the size of the mine field from the user. Dialog returns the number
         //of rows and columns in a Point object. If user exits the dialog without
         //selecting a mine field size, (0,0) is returned
-        MinefieldSizeDialog sizeDlg = new MinefieldSizeDialog(frame);
+        MinefieldSizeDialog sizeDlg = new MinefieldSizeDialog(frame, logoIcon);
         Point size = sizeDlg.showDialog();
         if(size.x > 0 && size.y > 0)
         {
@@ -48,26 +52,38 @@ public class ButtonGrid implements ActionListener
         contentPane.setBorder(BorderFactory.createBevelBorder(
         					BevelBorder.RAISED, Color.BLACK, Color.BLACK));
         
-       
-        
-        buttonGrid = new JButton[rows][columns]; //allocate the size of grid
-        grid = new Grid(rows, columns);
-        count = 0;
-              
-        Dimension buttonSize = new Dimension(9*4,9*3);
-        for(int row=0; row < rows; row++)
-            for(int col=0; col<columns; col++)
-            {
-            	buttonGrid[row][col] = new JButton(grid.getSymbol(row, col)); //creates new button
-            	buttonGrid[row][col].setPreferredSize(buttonSize);
-            	buttonGrid[row][col].addActionListener(this);
-                contentPane.add(buttonGrid[row][col]); //adds button to grid      
-            }
+        //set up the mine field for the initial play
+        initializeMineField(contentPane);
             
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack(); //sets appropriate size for frame
         frame.setVisible(true); //makes frame visible 
     }
+    
+    void initializeMineField(JPanel contentPane)
+    {
+    	 buttonGrid = new JButton[rows][columns]; //allocate the size of grid
+         grid = new Grid(rows, columns);
+         count = 0;
+               
+         Dimension buttonSize = new Dimension(9*4,9*3);
+         for(int row=0; row < rows; row++)
+             for(int col=0; col<columns; col++)
+             {
+             	buttonGrid[row][col] = new JButton(grid.getSymbol(row, col)); //creates new button
+             	buttonGrid[row][col].setPreferredSize(buttonSize);
+             	buttonGrid[row][col].addActionListener(this);
+                contentPane.add(buttonGrid[row][col]); //adds button to grid      
+             }
+    }
+    
+    /** Returns an ImageIcon, or null if the path was invalid. */
+   	ImageIcon createImageIcon(String path, String description)
+   	{
+   		java.net.URL imgURL = getClass().getResource(path);
+   		if (imgURL != null) { return new ImageIcon(imgURL, description); } 
+   		else { System.err.println("Couldn't find file: " + path); return null; }
+   	}
    
 	@Override
 	public void actionPerformed(ActionEvent ae)
@@ -89,8 +105,12 @@ public class ButtonGrid implements ActionListener
 		if(done)
 		{
 			//user hit a mine
-			JOptionPane.showMessageDialog(buttonGrid[rows-1][columns-1], "Game Over - Mine Encountered", 
-					"Game Over", JOptionPane.ERROR_MESSAGE);
+			String message = "Game Over - Mine Encountered";
+			Object[] options = {"Play Again", "Quit"};
+			int option = JOptionPane.showOptionDialog(buttonGrid[rows-1][columns-1], message,
+						"Game Over", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
+						logoIcon, options, options[0]);
+			System.out.println(options[option]);
 			
 			System.exit(0);
 		}
@@ -98,7 +118,7 @@ public class ButtonGrid implements ActionListener
 		{
 			//user completed mine field without hitting a mine
 			JOptionPane.showMessageDialog(buttonGrid[rows-1][columns-1], "Game Over - Winner", 
-				"Game Over", JOptionPane.INFORMATION_MESSAGE);
+				"Game Over", JOptionPane.INFORMATION_MESSAGE, logoIcon);
 			
 			System.exit(0);
 		}

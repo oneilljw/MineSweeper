@@ -4,6 +4,8 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -25,7 +27,7 @@ public class MinefieldSizeDialog extends JDialog implements ActionListener
 	JButton btnPlay;
 	private Point size;	//holds size of MineSweeper grid 
 
-	MinefieldSizeDialog(JFrame owner)
+	MinefieldSizeDialog(JFrame owner, ImageIcon logo)
 	{
 		super(owner, true);	//modal dialog
 		this.setTitle("MineSweeper");
@@ -33,10 +35,13 @@ public class MinefieldSizeDialog extends JDialog implements ActionListener
 		
 		//set up dialog user interface
 		
-		//create a top panel holding instruction to user
+		//create a top panel holding instruction to user, including game logo
 		JPanel instPanel = new JPanel();
 		JLabel lblInstruction = new JLabel("<html><i>Please select the number of rows<br>" +
-											" and columns for the mine field:</i></html>");
+											" and columns for the mine field:</i></html>");;
+		if(logo != null)
+			lblInstruction.setIcon(logo);
+		
 		instPanel.add(lblInstruction);
 		
 		//set up a panel for the row and column size selections and set default choices
@@ -79,7 +84,7 @@ public class MinefieldSizeDialog extends JDialog implements ActionListener
 		this.setVisible(true);
 		return size;
 	}
-
+	
 	@Override
 	public void actionPerformed(ActionEvent ae) 
 	{
