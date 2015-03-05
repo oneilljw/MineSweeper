@@ -6,13 +6,12 @@ import javax.swing.JButton; //imports JButton library
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout; //imports GridLayout library
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Scanner;
 
 /****
  * Replaces the view and controller classes in the minesweeper application
@@ -29,18 +28,27 @@ public class ButtonGrid implements ActionListener
     public ButtonGrid()
     { 
     	//constructor
-        Scanner scan = new Scanner(System.in);
-        System.out.print("Enter Rows: ");
-        rows = scan.nextInt();
-        System.out.print("Enter Columns: ");
-        columns = scan.nextInt();
-        	
         JFrame frame = new JFrame("MineSweeper");
-//      frame.setLayout(new GridLayout(rows,columns)); //set layout
+        
+        //get the size of the mine field from the user. Dialog returns the number
+        //of rows and columns in a Point object. If user exits the dialog without
+        //selecting a mine field size, (0,0) is returned
+        MinefieldSizeDialog sizeDlg = new MinefieldSizeDialog(frame);
+        Point size = sizeDlg.showDialog();
+        if(size.x > 0 && size.y > 0)
+        {
+        	rows = size.x;
+        	columns = size.y;
+        }
+        else
+        	System.exit(0);	//user closed size dialog, doesn't want to play
+        
         JPanel contentPane = (JPanel) frame.getContentPane();
         contentPane.setLayout(new GridLayout(rows,columns)); //set layout 
         contentPane.setBorder(BorderFactory.createBevelBorder(
         					BevelBorder.RAISED, Color.BLACK, Color.BLACK));
+        
+       
         
         buttonGrid = new JButton[rows][columns]; //allocate the size of grid
         grid = new Grid(rows, columns);
@@ -51,7 +59,6 @@ public class ButtonGrid implements ActionListener
             for(int col=0; col<columns; col++)
             {
             	buttonGrid[row][col] = new JButton(grid.getSymbol(row, col)); //creates new button
-//            	buttonGrid[row][col].setBorder(BorderFactory.createLineBorder(Color.BLUE, 2));
             	buttonGrid[row][col].setPreferredSize(buttonSize);
             	buttonGrid[row][col].addActionListener(this);
                 contentPane.add(buttonGrid[row][col]); //adds button to grid      
@@ -75,11 +82,13 @@ public class ButtonGrid implements ActionListener
 	            	done = grid.checkMine(row, col);
 	            	buttonGrid[row][col].setText(grid.getSymbol(row, col));
 	            	buttonGrid[row][col].setBorder(BorderFactory.createBevelBorder(
-	            			BevelBorder.LOWERED, Color.BLUE, Color.RED));
+	            			BevelBorder.LOWERED, Color.RED, Color.RED));
 	            	break;
 	            } 
+		
 		if(done)
 		{
+			//user hit a mine
 			JOptionPane.showMessageDialog(buttonGrid[rows-1][columns-1], "Game Over - Mine Encountered", 
 					"Game Over", JOptionPane.ERROR_MESSAGE);
 			
@@ -87,6 +96,7 @@ public class ButtonGrid implements ActionListener
 		}
 		else if(count >= (grid.cellCount()))
 		{
+			//user completed mine field without hitting a mine
 			JOptionPane.showMessageDialog(buttonGrid[rows-1][columns-1], "Game Over - Winner", 
 				"Game Over", JOptionPane.INFORMATION_MESSAGE);
 			
