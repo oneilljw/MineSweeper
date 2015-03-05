@@ -36,7 +36,7 @@ public class MinefieldSizeDialog extends JDialog implements ActionListener
 		//create a top panel holding instruction to user
 		JPanel instPanel = new JPanel();
 		JLabel lblInstruction = new JLabel("<html><i>Please select the number of rows<br>" +
-											" and columns for the gameboard:</i></html>");
+											" and columns for the mine field:</i></html>");
 		instPanel.add(lblInstruction);
 		
 		//set up a panel for the row and column size selections and set default choices
