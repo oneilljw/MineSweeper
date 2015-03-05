@@ -71,10 +71,38 @@ public class ButtonGrid implements ActionListener
              for(int col=0; col<columns; col++)
              {
              	buttonGrid[row][col] = new JButton(grid.getSymbol(row, col)); //creates new button
+             	buttonGrid[row][col].setBorder(BorderFactory.createBevelBorder(
+            			BevelBorder.LOWERED, Color.BLACK, Color.BLACK));
              	buttonGrid[row][col].setPreferredSize(buttonSize);
              	buttonGrid[row][col].addActionListener(this);
                 contentPane.add(buttonGrid[row][col]); //adds button to grid      
              }
+    }
+    
+    void restartGame()
+    {
+    	grid = new Grid(rows, columns);
+    	count = 0;
+    	for(int row=0; row < rows; row++)
+            for(int col=0; col<columns; col++)
+            {
+            	buttonGrid[row][col].setText(grid.getSymbol(row, col)); //resets button
+            	buttonGrid[row][col].setBorder(BorderFactory.createBevelBorder(
+            			BevelBorder.LOWERED, Color.BLACK, Color.BLACK));
+            }
+    }
+    
+    void onGameOver(String message)
+    {
+    	Object[] options = {"Play Again", "Quit"};
+		int option = JOptionPane.showOptionDialog(buttonGrid[rows-1][columns-1], message,
+					"Game Over", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
+					logoIcon, options, options[0]);
+		
+		if(option == JOptionPane.YES_OPTION)
+			restartGame();
+		else
+			System.exit(0);
     }
     
     /** Returns an ImageIcon, or null if the path was invalid. */
@@ -88,6 +116,7 @@ public class ButtonGrid implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent ae)
 	{
+		//check to see which JButton (Cell) was clicked
 		boolean done = false;
 		for(int row=0; row < rows; row++)
 	        for(int col=0; col<columns; col++)
@@ -102,25 +131,10 @@ public class ButtonGrid implements ActionListener
 	            	break;
 	            } 
 		
+		//check to see if the game has ended
 		if(done)
-		{
-			//user hit a mine
-			String message = "Game Over - Mine Encountered";
-			Object[] options = {"Play Again", "Quit"};
-			int option = JOptionPane.showOptionDialog(buttonGrid[rows-1][columns-1], message,
-						"Game Over", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
-						logoIcon, options, options[0]);
-			System.out.println(options[option]);
-			
-			System.exit(0);
-		}
+			onGameOver("Game Over - Mine Encountered");	//user hit a mine
 		else if(count >= (grid.cellCount()))
-		{
-			//user completed mine field without hitting a mine
-			JOptionPane.showMessageDialog(buttonGrid[rows-1][columns-1], "Game Over - Winner", 
-				"Game Over", JOptionPane.INFORMATION_MESSAGE, logoIcon);
-			
-			System.exit(0);
-		}
+			onGameOver("Game Over - Winner");	//user completed mine field successfully
 	}        
 }
